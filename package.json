@@ -34,5 +34,8 @@
     "@nuxt/icon": "^2.0.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "drizzle-kit": "^0.31.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
