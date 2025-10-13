@@ -90,89 +90,98 @@ async function handleCopy() {
     <main class="flex-1 container max-w-7xl mx-auto px-4 py-6 md:py-8">
       <!-- Header -->
       <header class="text-center mb-8 md:mb-12">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-1 bg-gradient-to-r from-[#FDC830] to-[#F37335] text-transparent bg-clip-text leading-tight pb-4">
-          Only Bingo!
-        </h1>
+        <NuxtLink to="/" class="inline-block group">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-1 bg-gradient-to-r from-[#FDC830] to-[#F37335] text-transparent bg-clip-text leading-tight pb-4 cursor-pointer transition-transform duration-200 group-hover:scale-105">
+            Only Bingo!
+          </h1>
+        </NuxtLink>
         <p class="text-base md:text-lg text-muted-foreground px-4">
           Create custom bingo boards and share them with friends
         </p>
       </header>
 
       <!-- Content -->
-      <div :class="['grid gap-6 md:gap-8', board.length > 0 ? 'lg:grid-cols-[1fr_2fr_1fr]' : 'place-items-center']">
-        <!-- Left spacer (desktop) -->
-        <div v-if="board.length > 0" class="hidden lg:block" />
+      <ClientOnly>
+        <div :class="['grid gap-6 md:gap-8', board.length > 0 ? 'lg:grid-cols-[1fr_2fr_1fr]' : 'place-items-center']">
+          <!-- Left spacer (desktop) -->
+          <div v-if="board.length > 0" class="hidden lg:block" />
 
-        <!-- Board or Input -->
-        <div class="w-full max-w-2xl mx-auto lg:max-w-none">
-          <!-- Loading State -->
-          <div v-if="isLoadingShared" class="flex items-center justify-center p-12">
-            <div class="text-center space-y-4">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FDC830] mx-auto"></div>
-              <p class="text-muted-foreground">Loading board...</p>
+          <!-- Board or Input -->
+          <div class="w-full max-w-2xl mx-auto lg:max-w-none">
+            <!-- Loading State -->
+            <div v-if="isLoadingShared" class="flex items-center justify-center p-12">
+              <div class="text-center space-y-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FDC830] mx-auto"></div>
+                <p class="text-muted-foreground">Loading board...</p>
+              </div>
             </div>
+
+            <!-- Error State -->
+            <div v-else-if="loadError" class="p-8 bg-red-900/20 border border-red-800 rounded-lg">
+              <p class="text-red-400 text-center">{{ loadError }}</p>
+            </div>
+
+            <!-- Input or Board -->
+            <template v-else-if="board.length === 0">
+              <WordInput v-model="wordsInput" :show-clear="true">
+                <template #actions="{ isValid }">
+                  <Button
+                    :disabled="!isValid"
+                    @click="handleCreateBoard"
+                    class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-8 py-3 text-base text-zinc-900"
+                  >
+                    Create Board
+                  </Button>
+                </template>
+              </WordInput>
+            </template>
+
+            <template v-else>
+              <BoardGrid
+                :board="board"
+                :clicked="clicked"
+                :bingo="bingo"
+                @cell-click="toggleCell"
+              />
+            </template>
           </div>
 
-          <!-- Error State -->
-          <div v-else-if="loadError" class="p-8 bg-red-900/20 border border-red-800 rounded-lg">
-            <p class="text-red-400 text-center">{{ loadError }}</p>
-          </div>
-
-          <!-- Input or Board -->
-          <template v-else-if="board.length === 0">
-            <WordInput v-model="wordsInput" :show-clear="true">
+          <!-- Right sidebar (when board exists) -->
+          <div v-if="board.length > 0" class="space-y-4 md:space-y-6 max-w-2xl mx-auto lg:max-w-none">
+            <WordInput v-model="wordsInput" class="lg:sticky lg:top-4">
               <template #actions="{ isValid }">
                 <Button
                   :disabled="!isValid"
-                  @click="handleCreateBoard"
-                  class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-8 py-3 text-base text-zinc-900"
+                  @click="handleRegenerate"
+                  class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-medium px-5 py-2 text-sm text-zinc-900"
                 >
-                  Create Board
+                  Regenerate
                 </Button>
               </template>
             </WordInput>
-          </template>
 
-          <template v-else>
-            <BoardGrid
-              :board="board"
-              :clicked="clicked"
-              :bingo="bingo"
-              @cell-click="toggleCell"
-            />
-          </template>
-        </div>
-
-        <!-- Right sidebar (when board exists) -->
-        <div v-if="board.length > 0" class="space-y-4 md:space-y-6 max-w-2xl mx-auto lg:max-w-none">
-          <WordInput v-model="wordsInput" class="lg:sticky lg:top-4">
-            <template #actions="{ isValid }">
+            <!-- Share Card -->
+            <div v-if="isGenerating" class="animate-pulse">
+              <div class="h-24 bg-zinc-800 rounded-lg" />
+            </div>
+            <Card v-else-if="shareableLink" class="p-4 md:p-6">
+              <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
               <Button
-                :disabled="!isValid"
-                @click="handleRegenerate"
-                class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-medium px-5 py-2 text-sm text-zinc-900"
+                @click="handleCopy"
+                class="w-full bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-6 py-2.5 text-zinc-900"
               >
-                Regenerate
+                <Icon v-if="copied" name="lucide:check" class="mr-2" />
+                {{ copied ? 'Copied!' : 'Copy Share Link' }}
               </Button>
-            </template>
-          </WordInput>
-
-          <!-- Share Card -->
-          <div v-if="isGenerating" class="animate-pulse">
-            <div class="h-24 bg-zinc-800 rounded-lg" />
+            </Card>
           </div>
-          <Card v-else-if="shareableLink" class="p-4 md:p-6">
-            <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
-            <Button
-              @click="handleCopy"
-              class="w-full bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-6 py-2.5 text-zinc-900"
-            >
-              <Icon v-if="copied" name="lucide:check" class="mr-2" />
-              {{ copied ? 'Copied!' : 'Copy Share Link' }}
-            </Button>
-          </Card>
         </div>
-      </div>
+        <template #fallback>
+          <div class="flex items-center justify-center p-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FDC830]"></div>
+          </div>
+        </template>
+      </ClientOnly>
     </main>
 
     <!-- Footer -->
