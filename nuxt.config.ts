@@ -18,7 +18,9 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     public: {
       // Public (client & server)
-      siteUrl: process.env.SITE_URL || 'http://localhost:3000'
+      siteUrl: process.env.SITE_URL || 'http://localhost:3000',
+      umamiScriptUrl: process.env.UMAMI_SCRIPT_URL,
+      umamiWebsiteId: process.env.UMAMI_WEBSITE_ID
     }
   },
 
@@ -28,6 +30,13 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Create custom bingo boards and share them with friends!' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ],
+      script: [
+        {
+          defer: true,
+          src: process.env.UMAMI_SCRIPT_URL,
+          'data-website-id': process.env.UMAMI_WEBSITE_ID
+        }
       ]
     }
   },
