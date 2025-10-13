@@ -27,7 +27,7 @@ const copied = ref(false)
 const isLoadingShared = ref(false)
 const loadError = ref<string | null>(null)
 
-// Load board from URL on mount
+// Load board from URL - use onMounted to avoid hydration mismatch
 onMounted(async () => {
   const id = route.query.id as string
   console.log('Route query ID:', id)

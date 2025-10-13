@@ -49,15 +49,31 @@ export function useBingoBoard() {
   }
 
   function loadBoard(data: { words: string[], board: (string | null)[][] }) {
-    words.value = data.words
+    console.log('loadBoard called with:', data)
+
+    // Set words first
+    words.value = [...data.words]
     wordsInput.value = data.words.join('\n')
+
     // Generate a random board from the words instead of using the saved board
-    board.value = generateBingoBoard(data.words)
+    const newBoard = generateBingoBoard(data.words)
+    console.log('Generated new board:', newBoard)
+    board.value = newBoard
+
+    // Initialize clicked state
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
     // Mark FREE space as clicked
     clicked.value[2][2] = true
+
+    // Reset bingo state
     bingo.value = false
     isExploding.value = false
+
+    console.log('Board state after loading:', {
+      boardLength: board.value.length,
+      wordsCount: words.value.length,
+      firstRow: board.value[0]
+    })
   }
 
   return {
