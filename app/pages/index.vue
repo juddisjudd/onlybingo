@@ -83,6 +83,21 @@ async function handleCopy() {
     setTimeout(() => copied.value = false, 2000)
   }
 }
+
+function handleGoHome() {
+  // Clear all board state
+  board.value = []
+  words.value = []
+  wordsInput.value = ''
+  clicked.value = []
+  bingo.value = false
+  isExploding.value = false
+  shareableLink.value = ''
+  loadError.value = null
+
+  // Navigate to home (removes query params)
+  navigateTo('/')
+}
 </script>
 
 <template>
@@ -90,11 +105,14 @@ async function handleCopy() {
     <main class="flex-1 container max-w-7xl mx-auto px-4 py-6 md:py-8">
       <!-- Header -->
       <header class="text-center mb-8 md:mb-12">
-        <NuxtLink to="/" class="inline-block group">
+        <button
+          @click="handleGoHome"
+          class="inline-block group border-none bg-transparent p-0 m-0"
+        >
           <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-1 bg-gradient-to-r from-[#FDC830] to-[#F37335] text-transparent bg-clip-text leading-tight pb-4 cursor-pointer transition-transform duration-200 group-hover:scale-105">
             Only Bingo!
           </h1>
-        </NuxtLink>
+        </button>
         <p class="text-base md:text-lg text-muted-foreground px-4">
           Create custom bingo boards and share them with friends
         </p>
