@@ -25,10 +25,13 @@ async function cleanupOldBoards() {
     console.log('🧹 Starting cleanup of boards older than 48 hours...')
 
     const cutoffDate = new Date(Date.now() - 48 * 60 * 60 * 1000) // 48 hours ago
+    const cutoffTimestamp = cutoffDate.toISOString()
+
+    console.log(`Cutoff date: ${cutoffTimestamp}`)
 
     const result = await db
       .delete(boards)
-      .where(sql`${boards.createdAt} < ${cutoffDate}`)
+      .where(sql`${boards.createdAt} < ${cutoffTimestamp}`)
       .returning({ id: boards.id })
 
     console.log(`✅ Deleted ${result.length} board(s) older than 48 hours`)
