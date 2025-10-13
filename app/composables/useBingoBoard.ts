@@ -23,17 +23,20 @@ export function useBingoBoard() {
   })
 
   function checkForDuplicates() {
-    const seen = new Set<string>()
-    const dupes: string[] = []
+    const wordCounts = new Map<string, number>()
 
+    // Count occurrences of each normalized word
     for (const word of words.value) {
-      const normalized = word.toLowerCase()
-      if (seen.has(normalized)) {
-        if (!dupes.includes(word)) {
-          dupes.push(word)
-        }
-      } else {
-        seen.add(normalized)
+      const normalized = word.toLowerCase().trim()
+      wordCounts.set(normalized, (wordCounts.get(normalized) || 0) + 1)
+    }
+
+    // Find words that appear more than once
+    const dupes: string[] = []
+    for (const word of words.value) {
+      const normalized = word.toLowerCase().trim()
+      if (wordCounts.get(normalized)! > 1 && !dupes.includes(word)) {
+        dupes.push(word)
       }
     }
 
@@ -48,14 +51,19 @@ export function useBingoBoard() {
     board.value = generateBingoBoard(words.value)
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
     // Mark FREE space as clicked
-    clicked.value[2][2] = true
+    if (clicked.value[2]) {
+      clicked.value[2][2] = true
+    }
     bingo.value = false
     isExploding.value = false
   }
 
   function toggleCell(row: number, col: number) {
-    clicked.value[row][col] = !clicked.value[row][col]
-    checkForBingo()
+    const rowData = clicked.value[row]
+    if (rowData) {
+      rowData[col] = !rowData[col]
+      checkForBingo()
+    }
   }
 
   function checkForBingo() {
@@ -87,7 +95,9 @@ export function useBingoBoard() {
     // Initialize clicked state
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
     // Mark FREE space as clicked
-    clicked.value[2][2] = true
+    if (clicked.value[2]) {
+      clicked.value[2][2] = true
+    }
 
     // Reset bingo state
     bingo.value = false

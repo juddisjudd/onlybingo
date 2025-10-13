@@ -83,9 +83,15 @@ async function toggleQRCode() {
   showQR.value = !showQR.value
 }
 
-function handleRegenerate() {
+async function handleRegenerate() {
   try {
     createBoard()
+    // Update the share link with the new board
+    await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value)
+    // Regenerate QR code with the new share link
+    if (shareableLink.value) {
+      await generateQRCode(shareableLink.value)
+    }
   } catch (error) {
     console.error('Failed to regenerate board:', error)
   }
