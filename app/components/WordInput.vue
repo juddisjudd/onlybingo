@@ -3,13 +3,17 @@ import { computed, watch, onMounted } from 'vue'
 
 interface Props {
   showClear?: boolean
+  duplicateWords?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showClear: false
+  showClear: false,
+  duplicateWords: () => []
 })
 
 const model = defineModel<string>({ required: true })
+
+const hasDuplicates = computed(() => props.duplicateWords && props.duplicateWords.length > 0)
 
 const STORAGE_KEY = 'onlybingo_word_list'
 
@@ -77,6 +81,12 @@ onMounted(() => {
           </span>
           <span v-if="!isValid" class="text-red-400 ml-2">
             (minimum 24)
+          </span>
+        </p>
+        <p v-if="hasDuplicates" class="text-xs text-yellow-400 flex items-start gap-1">
+          <Icon name="lucide:alert-triangle" class="w-3 h-3 mt-0.5 flex-shrink-0" />
+          <span>
+            Duplicate words detected: {{ duplicateWords?.join(', ') }}
           </span>
         </p>
         <p class="text-[10px] text-zinc-500">

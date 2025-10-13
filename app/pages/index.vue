@@ -9,9 +9,12 @@ const {
   clicked,
   bingo,
   isExploding,
+  qrCodeUrl,
+  duplicateWords,
   createBoard,
   toggleCell,
-  loadBoard
+  loadBoard,
+  generateQRCode
 } = useBingoBoard()
 
 const {
@@ -22,6 +25,7 @@ const {
 } = useShareBoard()
 
 const copied = ref(false)
+const showQR = ref(false)
 
 // Track if we're loading a shared board
 const isLoadingShared = ref(false)
@@ -63,9 +67,20 @@ async function handleCreateBoard() {
   try {
     createBoard()
     await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value)
+    // Generate QR code after share link is created
+    if (shareableLink.value) {
+      await generateQRCode(shareableLink.value)
+    }
   } catch (error) {
     console.error('Failed to create board:', error)
   }
+}
+
+async function toggleQRCode() {
+  if (!showQR.value && !qrCodeUrl.value && shareableLink.value) {
+    await generateQRCode(shareableLink.value)
+  }
+  showQR.value = !showQR.value
 }
 
 function handleRegenerate() {
@@ -141,7 +156,7 @@ function handleGoHome() {
 
             <!-- Input or Board -->
             <template v-else-if="board.length === 0">
-              <WordInput v-model="wordsInput" :show-clear="true">
+              <WordInput v-model="wordsInput" :show-clear="true" :duplicate-words="duplicateWords">
                 <template #actions="{ isValid }">
                   <Button
                     :disabled="!isValid"
@@ -166,7 +181,7 @@ function handleGoHome() {
 
           <!-- Right sidebar (when board exists) -->
           <div v-if="board.length > 0" class="space-y-4 md:space-y-6 max-w-2xl mx-auto lg:max-w-none">
-            <WordInput v-model="wordsInput" class="lg:sticky lg:top-4">
+            <WordInput v-model="wordsInput" :duplicate-words="duplicateWords" class="lg:sticky lg:top-4">
               <template #actions="{ isValid }">
                 <Button
                   :disabled="!isValid"
@@ -182,15 +197,35 @@ function handleGoHome() {
             <div v-if="isGenerating" class="animate-pulse">
               <div class="h-24 bg-zinc-800 rounded-lg" />
             </div>
-            <Card v-else-if="shareableLink" class="p-4 md:p-6">
-              <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
-              <Button
-                @click="handleCopy"
-                class="w-full bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-6 py-2.5 text-zinc-900"
-              >
-                <Icon v-if="copied" name="lucide:check" class="mr-2" />
-                {{ copied ? 'Copied!' : 'Copy Share Link' }}
-              </Button>
+            <Card v-else-if="shareableLink" class="p-4 md:p-6 space-y-4">
+              <div>
+                <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
+                <div class="space-y-2">
+                  <Button
+                    @click="handleCopy"
+                    class="w-full bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-6 py-2.5 text-zinc-900"
+                  >
+                    <Icon v-if="copied" name="lucide:check" class="mr-2" />
+                    {{ copied ? 'Copied!' : 'Copy Share Link' }}
+                  </Button>
+                  <Button
+                    @click="toggleQRCode"
+                    variant="outline"
+                    class="w-full"
+                  >
+                    <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
+                    {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
+                  </Button>
+                </div>
+              </div>
+
+              <!-- QR Code Display -->
+              <div v-if="showQR && qrCodeUrl" class="pt-2 border-t border-zinc-800">
+                <p class="text-xs text-muted-foreground mb-3 text-center">Scan to share</p>
+                <div class="flex justify-center">
+                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2" />
+                </div>
+              </div>
             </Card>
           </div>
         </div>

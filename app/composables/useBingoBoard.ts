@@ -1,4 +1,5 @@
 import { generateBingoBoard } from '~/lib/utils'
+import QRCode from 'qrcode'
 
 export function useBingoBoard() {
   const words = ref<string[]>([])
@@ -7,6 +8,8 @@ export function useBingoBoard() {
   const clicked = ref<boolean[][]>([])
   const bingo = ref(false)
   const isExploding = ref(false)
+  const qrCodeUrl = ref<string>('')
+  const duplicateWords = ref<string[]>([])
 
   // Watch words input and parse
   watch(wordsInput, (value) => {
@@ -14,7 +17,28 @@ export function useBingoBoard() {
       .split('\n')
       .map(w => w.trim())
       .filter(w => w.length > 0)
+
+    // Check for duplicates
+    checkForDuplicates()
   })
+
+  function checkForDuplicates() {
+    const seen = new Set<string>()
+    const dupes: string[] = []
+
+    for (const word of words.value) {
+      const normalized = word.toLowerCase()
+      if (seen.has(normalized)) {
+        if (!dupes.includes(word)) {
+          dupes.push(word)
+        }
+      } else {
+        seen.add(normalized)
+      }
+    }
+
+    duplicateWords.value = dupes
+  }
 
   function createBoard() {
     if (words.value.length < 24) {
@@ -76,6 +100,25 @@ export function useBingoBoard() {
     })
   }
 
+  async function generateQRCode(url: string) {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(url, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+      })
+      qrCodeUrl.value = qrDataUrl
+      return qrDataUrl
+    } catch (error) {
+      console.error('Failed to generate QR code:', error)
+      qrCodeUrl.value = ''
+      return ''
+    }
+  }
+
   return {
     words,
     wordsInput,
@@ -83,8 +126,11 @@ export function useBingoBoard() {
     clicked,
     bingo,
     isExploding,
+    qrCodeUrl,
+    duplicateWords,
     createBoard,
     toggleCell,
     loadBoard,
+    generateQRCode,
   }
 }
