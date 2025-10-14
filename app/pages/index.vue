@@ -245,7 +245,7 @@ function handleGoHome() {
 
     <!-- Footer -->
     <footer class="py-6 text-center text-sm text-zinc-400 border-t border-zinc-800">
-      <p>
+      <p class="flex items-center justify-center gap-2">
         &copy; {{ new Date().getFullYear() }}
         <NuxtLink
           to="https://www.twitch.tv/ohitsjudd"
@@ -254,7 +254,15 @@ function handleGoHome() {
         >
           ohitsjudd
         </NuxtLink>
-        · Drive-by reserved
+        <span>·</span>
+        <NuxtLink
+          to="https://github.com/juddisjudd/onlybingo"
+          external
+          class="hover:text-zinc-200 transition-colors flex items-center gap-1"
+        >
+          <Icon name="lucide:github" class="w-4 h-4" />
+          Open Source
+        </NuxtLink>
       </p>
     </footer>
 
