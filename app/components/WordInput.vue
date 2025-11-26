@@ -69,10 +69,10 @@ onMounted(() => {
     <textarea
       v-model="model"
       placeholder="Enter words, one per line... (Your list is auto-saved!)"
-      class="w-full min-h-[300px] max-h-[600px] p-4 bg-zinc-900/50 border border-zinc-700/50 rounded-xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-y backdrop-blur-sm transition-all duration-200"
+      class="w-full min-h-[400px] max-h-[600px] p-4 bg-zinc-900/50 border border-zinc-700/50 rounded-xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-y backdrop-blur-sm transition-all duration-200"
     />
 
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
       <div class="flex flex-col gap-1">
         <p class="text-xs sm:text-sm text-muted-foreground">
           <span class="font-medium">Words:</span>
@@ -94,10 +94,10 @@ onMounted(() => {
         </p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
         <button
           v-if="showClear && wordCount > 0"
-          class="text-sm font-medium px-6 py-2 rounded-md bg-zinc-800 hover:bg-red-900/50 text-red-400 hover:text-red-300 border border-zinc-700 hover:border-red-800 transition-all"
+          class="text-sm font-medium px-6 py-2 rounded-md bg-zinc-800 hover:bg-red-900/50 text-red-400 hover:text-red-300 border border-zinc-700 hover:border-red-800 transition-all w-full sm:w-auto"
           @click="clearList"
         >
           Clear List

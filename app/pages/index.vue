@@ -132,11 +132,52 @@ function handleGoHome() {
       <!-- Content -->
       <ClientOnly>
         <div :class="['grid gap-6 md:gap-8', board.length > 0 ? 'lg:grid-cols-[1fr_2fr_1fr]' : 'place-items-center']">
-          <!-- Left spacer (desktop) -->
-          <div v-if="board.length > 0" class="hidden lg:block" />
+          <!-- Left sidebar - Share Card (when board exists) -->
+          <div v-if="board.length > 0" class="order-3 lg:order-1 space-y-4 md:space-y-6 w-full lg:max-w-none">
+            <!-- Share Card -->
+            <Card v-if="shareableLink || isGenerating" class="p-4 md:p-6 space-y-4 lg:sticky lg:top-4">
+              <div>
+                <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
+                <div class="space-y-2">
+                  <!-- Skeleton buttons during loading -->
+                  <template v-if="isGenerating">
+                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
+                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
+                  </template>
+                  <template v-else>
+                    <Button
+                      class="w-full font-medium px-4 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
+                      @click="handleCopy"
+                    >
+                      <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="mr-2 h-4 w-4 shrink-0" />
+                      {{ copied ? 'Copied!' : 'Copy Link' }}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      class="w-full"
+                      @click="toggleQRCode"
+                    >
+                      <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
+                      {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
+                    </Button>
+                  </template>
+                </div>
+              </div>
 
-          <!-- Board or Input -->
-          <div class="w-full max-w-2xl mx-auto lg:max-w-none">
+              <!-- QR Code Display -->
+              <div v-if="showQR && qrCodeUrl && !isGenerating" class="pt-2 border-t border-zinc-800">
+                <p class="text-xs text-muted-foreground mb-3 text-center">Scan to share</p>
+                <div class="flex justify-center">
+                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2 w-32 h-32 object-contain">
+                </div>
+              </div>
+            </Card>
+          </div>
+          <!-- Left spacer (desktop, when no board) -->
+          <div v-else class="hidden" />
+
+          <!-- Board or Input (center) -->
+          <div class="order-1 lg:order-2 w-full max-w-2xl mx-auto lg:max-w-none">
             <!-- Loading State -->
             <div v-if="isLoadingShared" class="flex items-center justify-center p-12">
               <div class="text-center space-y-4">
@@ -175,8 +216,8 @@ function handleGoHome() {
             </template>
           </div>
 
-          <!-- Right sidebar (when board exists) -->
-          <div v-if="board.length > 0" class="space-y-4 md:space-y-6 max-w-2xl mx-auto lg:max-w-none">
+          <!-- Right sidebar - Word Input (when board exists) -->
+          <div v-if="board.length > 0" class="order-2 lg:order-3 space-y-4 md:space-y-6 w-full lg:max-w-none">
             <WordInput v-model="wordsInput" :duplicate-words="duplicateWords" class="lg:sticky lg:top-4">
               <template #actions="{ isValid }">
                 <Button
@@ -188,45 +229,6 @@ function handleGoHome() {
                 </Button>
               </template>
             </WordInput>
-
-            <!-- Share Card -->
-            <Card v-if="shareableLink || isGenerating" class="p-4 md:p-6 space-y-4">
-              <div>
-                <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
-                <div class="space-y-2">
-                  <!-- Skeleton buttons during loading -->
-                  <template v-if="isGenerating">
-                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
-                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
-                  </template>
-                  <template v-else>
-                    <Button
-                      class="w-full font-medium px-4 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
-                      @click="handleCopy"
-                    >
-                      <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="mr-2 h-4 w-4 shrink-0" />
-                      {{ copied ? 'Copied!' : 'Copy Link' }}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      class="w-full"
-                      @click="toggleQRCode"
-                    >
-                      <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
-                      {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
-                    </Button>
-                  </template>
-                </div>
-              </div>
-
-              <!-- QR Code Display -->
-              <div v-if="showQR && qrCodeUrl && !isGenerating" class="pt-2 border-t border-zinc-800">
-                <p class="text-xs text-muted-foreground mb-3 text-center">Scan to share</p>
-                <div class="flex justify-center">
-                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2 w-32 h-32 object-contain">
-                </div>
-              </div>
-            </Card>
           </div>
         </div>
         <template #fallback>
