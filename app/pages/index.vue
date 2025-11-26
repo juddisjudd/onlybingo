@@ -242,13 +242,12 @@ function handleGoHome() {
     <!-- Footer -->
     <footer class="py-6 text-center text-sm text-zinc-400 border-t border-zinc-800">
       <p class="flex items-center justify-center gap-2">
-        &copy; {{ new Date().getFullYear() }}
         <NuxtLink
-          to="https://www.twitch.tv/ohitsjudd"
+          to="https://juddscript.dev/"
           external
-          class="hover:text-zinc-200 transition-colors"
+          class="hover:text-green-500 transition-colors"
         >
-          ohitsjudd
+        &copy; {{ new Date().getFullYear() }} Judd
         </NuxtLink>
         <span>·</span>
         <NuxtLink
