@@ -14,12 +14,20 @@ const emit = defineEmits<{
 }>()
 
 function getCellClass(row: number, col: number) {
+  const isClicked = props.clicked[row][col]
+  const isFree = props.board[row][col] === null
+  
   return cn(
-    'aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 border border-zinc-700 overflow-hidden',
+    'aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] border overflow-hidden',
     {
-      'bg-yellow-600 hover:bg-yellow-700': props.clicked[row][col] && !props.bingo,
-      'bg-green-600 hover:bg-green-700': props.clicked[row][col] && props.bingo,
-      'bg-zinc-800 hover:bg-zinc-700': !props.clicked[row][col],
+      // Bingo state (brighter blue glow)
+      'bg-blue-500 border-blue-400 hover:bg-blue-400 shadow-lg shadow-blue-500/25 text-white': isClicked && props.bingo,
+      // Clicked state (electric blue)
+      'bg-blue-600 border-blue-500 hover:bg-blue-500 text-white': isClicked && !props.bingo,
+      // Free space styling
+      'bg-zinc-900 border-zinc-700 hover:bg-zinc-800': !isClicked && isFree,
+      // Unclicked state
+      'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700': !isClicked && !isFree,
     }
   )
 }
@@ -33,16 +41,17 @@ function truncateWord(word: string | null, maxLength = 20) {
 <template>
   <div class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
     <template v-for="(row, i) in board" :key="`row-${i}`">
-      <div
+      <button
         v-for="(word, j) in row"
         :key="`cell-${i}-${j}`"
         :class="getCellClass(i, j)"
+        type="button"
         @click="emit('cellClick', i, j)"
       >
-        <span class="text-[10px] sm:text-xs md:text-sm text-center font-medium line-clamp-3 break-words overflow-hidden w-full leading-tight">
+        <span class="text-[10px] sm:text-xs md:text-sm text-center font-medium line-clamp-3 wrap-break-word overflow-hidden w-full leading-tight">
           {{ truncateWord(word) }}
         </span>
-      </div>
+      </button>
     </template>
   </div>
 </template>

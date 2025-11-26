@@ -1,17 +1,22 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4
   },
 
   modules: [
-    '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     '@nuxt/icon',
     '@nuxt/eslint'
   ],
 
   css: ['~/assets/css/main.css'],
+
+  vite: {
+    plugins: [tailwindcss()]
+  },
 
   runtimeConfig: {
     // Private (server-only)
@@ -27,9 +32,26 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Only Bingo!',
+      htmlAttrs: {
+        lang: 'en'
+      },
       meta: [
         { name: 'description', content: 'Create custom bingo boards and share them with friends!' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        // Open Graph
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Only Bingo!' },
+        { property: 'og:description', content: 'Create custom bingo boards and share them with friends!' },
+        { property: 'og:site_name', content: 'Only Bingo!' },
+        // Twitter
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: 'Only Bingo!' },
+        { name: 'twitter:description', content: 'Create custom bingo boards and share them with friends!' },
+        // Theme
+        { name: 'theme-color', content: '#FDC830' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
       ],
       script: [
         {

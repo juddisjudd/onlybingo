@@ -34,29 +34,19 @@ const loadError = ref<string | null>(null)
 // Load board from URL - use onMounted to avoid hydration mismatch
 onMounted(async () => {
   const id = route.query.id as string
-  console.log('Route query ID:', id)
   if (id) {
     isLoadingShared.value = true
     loadError.value = null
     try {
-      console.log('Fetching board with ID:', id)
       const data = await $fetch(`/api/boards/${id}`)
-      console.log('Loaded board data:', data)
       if (data && data.words && Array.isArray(data.words) && data.words.length >= 24) {
         loadBoard(data)
-        console.log('Board loaded successfully')
-        console.log('Board state:', {
-          boardLength: board.value.length,
-          wordsCount: words.value.length,
-          wordsInputLength: wordsInput.value.length
-        })
       } else {
         loadError.value = 'Invalid board data'
-        console.error('Invalid board data:', data)
       }
-    } catch (error: any) {
-      loadError.value = error.statusMessage || error.message || 'Failed to load board'
-      console.error('Failed to load board:', error)
+    } catch (error: unknown) {
+      const err = error as { statusMessage?: string; message?: string }
+      loadError.value = err.statusMessage || err.message || 'Failed to load board'
     } finally {
       isLoadingShared.value = false
     }
@@ -127,14 +117,14 @@ function handleGoHome() {
       <!-- Header -->
       <header class="text-center mb-8 md:mb-12">
         <button
+          class="inline-block group border-none bg-transparent p-0 m-0 cursor-pointer"
           @click="handleGoHome"
-          class="inline-block group border-none bg-transparent p-0 m-0"
         >
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-1 bg-gradient-to-r from-[#FDC830] to-[#F37335] text-transparent bg-clip-text leading-tight pb-4 cursor-pointer transition-transform duration-200 group-hover:scale-105">
+          <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-black mb-1 gradient-text leading-tight pb-4 uppercase tracking-tight drop-shadow-lg">
             Only Bingo!
           </h1>
         </button>
-        <p class="text-base md:text-lg text-muted-foreground px-4">
+        <p class="text-base md:text-lg text-zinc-400 px-4">
           Create custom bingo boards and share them with friends
         </p>
       </header>
@@ -150,8 +140,8 @@ function handleGoHome() {
             <!-- Loading State -->
             <div v-if="isLoadingShared" class="flex items-center justify-center p-12">
               <div class="text-center space-y-4">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FDC830] mx-auto"></div>
-                <p class="text-muted-foreground">Loading board...</p>
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto" />
+                <p class="text-zinc-400">Loading board...</p>
               </div>
             </div>
 
@@ -166,8 +156,8 @@ function handleGoHome() {
                 <template #actions="{ isValid }">
                   <Button
                     :disabled="!isValid"
+                    class="w-full sm:w-auto font-medium px-6 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
                     @click="handleCreateBoard"
-                    class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-8 py-3 text-base text-zinc-900"
                   >
                     Create Board
                   </Button>
@@ -191,8 +181,8 @@ function handleGoHome() {
               <template #actions="{ isValid }">
                 <Button
                   :disabled="!isValid"
+                  class="w-full sm:w-auto font-medium px-4 py-1.5 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
                   @click="handleRegenerate"
-                  class="w-full sm:w-auto bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-medium px-5 py-2 text-sm text-zinc-900"
                 >
                   Regenerate
                 </Button>
@@ -208,16 +198,16 @@ function handleGoHome() {
                 <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
                 <div class="space-y-2">
                   <Button
+                    class="w-full font-medium px-4 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
                     @click="handleCopy"
-                    class="w-full bg-gradient-to-r from-[#FDC830] to-[#F37335] hover:from-[#FDC830]/90 hover:to-[#F37335]/90 font-semibold px-6 py-2.5 text-zinc-900"
                   >
-                    <Icon v-if="copied" name="lucide:check" class="mr-2" />
+                    <Icon v-if="copied" name="lucide:check" class="mr-2 h-4 w-4" />
                     {{ copied ? 'Copied!' : 'Copy Share Link' }}
                   </Button>
                   <Button
-                    @click="toggleQRCode"
                     variant="outline"
                     class="w-full"
+                    @click="toggleQRCode"
                   >
                     <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
                     {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
@@ -229,7 +219,7 @@ function handleGoHome() {
               <div v-if="showQR && qrCodeUrl" class="pt-2 border-t border-zinc-800">
                 <p class="text-xs text-muted-foreground mb-3 text-center">Scan to share</p>
                 <div class="flex justify-center">
-                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2" />
+                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2">
                 </div>
               </div>
             </Card>
@@ -237,7 +227,7 @@ function handleGoHome() {
         </div>
         <template #fallback>
           <div class="flex items-center justify-center p-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FDC830]"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
           </div>
         </template>
       </ClientOnly>
@@ -272,7 +262,7 @@ function handleGoHome() {
         v-if="bingo && isExploding"
         class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
       >
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" />
         <ConfettiExplosion
           :force="0.8"
           :duration="3000"
@@ -280,10 +270,10 @@ function handleGoHome() {
           :width="1600"
         />
         <div class="relative">
-          <div class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FDC830] to-[#F37335] animate-pulse-slow">
+          <div class="font-display text-8xl md:text-9xl font-black gradient-text animate-pulse-slow uppercase tracking-tight drop-shadow-lg">
             BINGO!
           </div>
-          <div class="absolute inset-0 text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FDC830] to-[#F37335] blur-2xl">
+          <div class="absolute inset-0 font-display text-8xl md:text-9xl font-black text-blue-500/30 blur-2xl uppercase tracking-tight">
             BINGO!
           </div>
         </div>

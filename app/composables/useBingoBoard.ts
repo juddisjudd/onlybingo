@@ -81,16 +81,12 @@ export function useBingoBoard() {
   }
 
   function loadBoard(data: { words: string[], board: (string | null)[][] }) {
-    console.log('loadBoard called with:', data)
-
     // Set words first
     words.value = [...data.words]
     wordsInput.value = data.words.join('\n')
 
     // Generate a random board from the words instead of using the saved board
-    const newBoard = generateBingoBoard(data.words)
-    console.log('Generated new board:', newBoard)
-    board.value = newBoard
+    board.value = generateBingoBoard(data.words)
 
     // Initialize clicked state
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
@@ -102,12 +98,6 @@ export function useBingoBoard() {
     // Reset bingo state
     bingo.value = false
     isExploding.value = false
-
-    console.log('Board state after loading:', {
-      boardLength: board.value.length,
-      wordsCount: words.value.length,
-      firstRow: board.value[0]
-    })
   }
 
   async function generateQRCode(url: string) {
