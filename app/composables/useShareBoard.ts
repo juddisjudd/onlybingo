@@ -5,7 +5,7 @@ export function useShareBoard() {
 
   async function generateShareLink(words: string[], board: (string | null)[][]) {
     isGenerating.value = true
-    shareableLink.value = ''
+    // Don't clear shareableLink to prevent layout shift during regeneration
 
     try {
       const { id } = await $fetch('/api/boards', {

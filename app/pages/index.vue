@@ -190,36 +190,40 @@ function handleGoHome() {
             </WordInput>
 
             <!-- Share Card -->
-            <div v-if="isGenerating" class="animate-pulse">
-              <div class="h-24 bg-zinc-800 rounded-lg" />
-            </div>
-            <Card v-else-if="shareableLink" class="p-4 md:p-6 space-y-4">
+            <Card v-if="shareableLink || isGenerating" class="p-4 md:p-6 space-y-4">
               <div>
                 <p class="text-sm text-muted-foreground mb-3">Share this board:</p>
                 <div class="space-y-2">
-                  <Button
-                    class="w-full font-medium px-4 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
-                    @click="handleCopy"
-                  >
-                    <Icon v-if="copied" name="lucide:check" class="mr-2 h-4 w-4" />
-                    {{ copied ? 'Copied!' : 'Copy Share Link' }}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    class="w-full"
-                    @click="toggleQRCode"
-                  >
-                    <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
-                    {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
-                  </Button>
+                  <!-- Skeleton buttons during loading -->
+                  <template v-if="isGenerating">
+                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
+                    <div class="w-full h-9 bg-zinc-800 rounded-md animate-pulse" />
+                  </template>
+                  <template v-else>
+                    <Button
+                      class="w-full font-medium px-4 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
+                      @click="handleCopy"
+                    >
+                      <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="mr-2 h-4 w-4 shrink-0" />
+                      {{ copied ? 'Copied!' : 'Copy Link' }}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      class="w-full"
+                      @click="toggleQRCode"
+                    >
+                      <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
+                      {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
+                    </Button>
+                  </template>
                 </div>
               </div>
 
               <!-- QR Code Display -->
-              <div v-if="showQR && qrCodeUrl" class="pt-2 border-t border-zinc-800">
+              <div v-if="showQR && qrCodeUrl && !isGenerating" class="pt-2 border-t border-zinc-800">
                 <p class="text-xs text-muted-foreground mb-3 text-center">Scan to share</p>
                 <div class="flex justify-center">
-                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2">
+                  <img :src="qrCodeUrl" alt="QR Code" class="rounded-lg bg-white p-2 w-32 h-32 object-contain">
                 </div>
               </div>
             </Card>
