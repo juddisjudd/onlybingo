@@ -14,43 +14,58 @@ const emit = defineEmits<{
 }>()
 
 function getCellClass(row: number, col: number) {
-  const isClicked = props.clicked[row][col]
   const isFree = props.board[row][col] === null
   
   return cn(
-    'aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] border overflow-hidden',
+    'relative aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg transition-all duration-200 border overflow-hidden',
     {
-      // Bingo state (brighter blue glow)
-      'bg-blue-500 border-blue-400 hover:bg-blue-400 shadow-lg shadow-blue-500/25 text-white': isClicked && props.bingo,
-      // Clicked state (electric blue)
-      'bg-blue-600 border-blue-500 hover:bg-blue-500 text-white': isClicked && !props.bingo,
-      // Free space styling
-      'bg-zinc-900 border-zinc-700 hover:bg-zinc-800': !isClicked && isFree,
-      // Unclicked state
-      'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700': !isClicked && !isFree,
+      // Free space styling (always marked, non-interactive)
+      'bg-blue-600/30 border-blue-500/50 text-blue-300 cursor-default': isFree,
+      // Regular cells (interactive)
+      'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 text-zinc-300 cursor-pointer hover:scale-[1.02]': !isFree,
     }
   )
 }
 
-function truncateWord(word: string | null, maxLength = 20) {
+function displayWord(word: string | null) {
   if (!word) return 'FREE'
-  return word.length > maxLength ? `${word.slice(0, maxLength)}...` : word
+  return word
 }
 </script>
 
 <template>
-  <div class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
+  <div id="bingo-board" class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-2xl mx-auto p-4 bg-black rounded-xl">
     <template v-for="(row, i) in board" :key="`row-${i}`">
       <button
         v-for="(word, j) in row"
         :key="`cell-${i}-${j}`"
         :class="getCellClass(i, j)"
         type="button"
-        @click="emit('cellClick', i, j)"
+        @click="word !== null && emit('cellClick', i, j)"
       >
-        <span class="text-[10px] sm:text-xs md:text-sm text-center font-medium line-clamp-3 wrap-break-word overflow-hidden w-full leading-tight">
-          {{ truncateWord(word) }}
+        <span class="text-[8px] sm:text-[10px] md:text-xs text-center font-medium line-clamp-4 wrap-break-word hyphens-auto overflow-hidden w-full leading-[1.15]">
+          {{ displayWord(word) }}
         </span>
+        <!-- X overlay for clicked cells (not FREE) -->
+        <svg
+          v-if="clicked[i][j] && word !== null"
+          class="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <line
+            x1="15" y1="15" x2="85" y2="85"
+            class="stroke-current text-emerald-400"
+            stroke-width="6"
+            stroke-linecap="round"
+          />
+          <line
+            x1="85" y1="15" x2="15" y2="85"
+            class="stroke-current text-emerald-400"
+            stroke-width="6"
+            stroke-linecap="round"
+          />
+        </svg>
       </button>
     </template>
   </div>

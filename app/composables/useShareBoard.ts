@@ -35,10 +35,15 @@ export function useShareBoard() {
     }
   }
 
+  function setShareLinkFromId(id: string) {
+    shareableLink.value = `${config.public.siteUrl}/?id=${id}`
+  }
+
   return {
     shareableLink,
     isGenerating,
     generateShareLink,
     copyToClipboard,
+    setShareLinkFromId,
   }
 }

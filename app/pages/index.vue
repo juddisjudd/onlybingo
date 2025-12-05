@@ -2,6 +2,7 @@
 import ConfettiExplosion from 'vue-confetti-explosion'
 
 const route = useRoute()
+const router = useRouter()
 const {
   words,
   wordsInput,
@@ -14,14 +15,16 @@ const {
   createBoard,
   toggleCell,
   loadBoard,
-  generateQRCode
+  generateQRCode,
+  saveBoardAsPng
 } = useBingoBoard()
 
 const {
   shareableLink,
   isGenerating,
   generateShareLink,
-  copyToClipboard
+  copyToClipboard,
+  setShareLinkFromId
 } = useShareBoard()
 
 const copied = ref(false)
@@ -41,6 +44,8 @@ onMounted(async () => {
       const data = await $fetch(`/api/boards/${id}`)
       if (data && data.words && Array.isArray(data.words) && data.words.length >= 24) {
         loadBoard(data)
+        // Set the shareable link so the share card is visible
+        setShareLinkFromId(id)
       } else {
         loadError.value = 'Invalid board data'
       }
@@ -57,8 +62,12 @@ async function handleCreateBoard() {
   try {
     createBoard()
     await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value)
-    // Generate QR code after share link is created
+    // Update URL to include the board ID (without full page navigation)
     if (shareableLink.value) {
+      const id = shareableLink.value.split('?id=')[1]
+      if (id) {
+        router.replace({ query: { id } })
+      }
       await generateQRCode(shareableLink.value)
     }
   } catch (error) {
@@ -160,6 +169,14 @@ function handleGoHome() {
                       <Icon :name="showQR ? 'lucide:x' : 'lucide:qr-code'" class="mr-2" />
                       {{ showQR ? 'Hide QR Code' : 'Show QR Code' }}
                     </Button>
+                    <Button
+                      variant="outline"
+                      class="w-full"
+                      @click="saveBoardAsPng()"
+                    >
+                      <Icon name="lucide:download" class="mr-2" />
+                      Save as PNG
+                    </Button>
                   </template>
                 </div>
               </div>
@@ -193,7 +210,7 @@ function handleGoHome() {
 
             <!-- Input or Board -->
             <template v-else-if="board.length === 0">
-              <WordInput v-model="wordsInput" :show-clear="true" :duplicate-words="duplicateWords">
+              <WordInput v-model="wordsInput" :show-clear="true" :show-preview="true" :duplicate-words="duplicateWords">
                 <template #actions="{ isValid }">
                   <Button
                     :disabled="!isValid"

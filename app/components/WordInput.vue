@@ -3,11 +3,13 @@ import { computed, watch, onMounted } from 'vue'
 
 interface Props {
   showClear?: boolean
+  showPreview?: boolean
   duplicateWords?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showClear: false,
+  showPreview: false,
   duplicateWords: () => []
 })
 
@@ -17,13 +19,14 @@ const hasDuplicates = computed(() => props.duplicateWords && props.duplicateWord
 
 const STORAGE_KEY = 'onlybingo_word_list'
 
-const wordCount = computed(() => {
+const words = computed(() => {
   return model.value
     .split('\n')
     .map(w => w.trim())
     .filter(w => w.length > 0)
-    .length
 })
+
+const wordCount = computed(() => words.value.length)
 
 const isValid = computed(() => wordCount.value >= 24)
 
@@ -66,12 +69,25 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4">
-    <textarea
-      v-model="model"
-      placeholder="Enter words, one per line... (Your list is auto-saved!)"
-      class="w-full min-h-[400px] max-h-[600px] p-4 bg-zinc-900/50 border border-zinc-700/50 rounded-xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-y backdrop-blur-sm transition-all duration-200"
-    />
+    <!-- Main content area -->
+    <div :class="['grid gap-6', showPreview ? 'md:grid-cols-[5fr_2fr]' : '']">
+      <!-- Textarea -->
+      <textarea
+        v-model="model"
+        placeholder="Enter words, one per line... (Your list is auto-saved!)"
+        :class="[
+          'w-full p-4 bg-zinc-900/50 border border-zinc-700/50 rounded-xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-y backdrop-blur-sm transition-all duration-200',
+          showPreview ? 'min-h-[350px] max-h-[450px]' : 'min-h-[400px] max-h-[600px]'
+        ]"
+      />
+      
+      <!-- Board Preview -->
+      <div v-if="showPreview">
+        <BoardPreview :words="words" />
+      </div>
+    </div>
 
+    <!-- Word count and action buttons -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
       <div class="flex flex-col gap-1">
         <p class="text-xs sm:text-sm text-muted-foreground">
