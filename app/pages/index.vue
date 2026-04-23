@@ -6,6 +6,7 @@ const router = useRouter()
 const {
   words,
   wordsInput,
+  freeSpaceText,
   board,
   clicked,
   bingo,
@@ -109,6 +110,7 @@ function handleGoHome() {
   board.value = []
   words.value = []
   wordsInput.value = ''
+  freeSpaceText.value = 'FREE'
   clicked.value = []
   bingo.value = false
   isExploding.value = false
@@ -210,7 +212,7 @@ function handleGoHome() {
 
             <!-- Input or Board -->
             <template v-else-if="board.length === 0">
-              <WordInput v-model="wordsInput" :show-clear="true" :show-preview="true" :duplicate-words="duplicateWords">
+              <WordInput v-model="wordsInput" v-model:free-space-text="freeSpaceText" :show-clear="true" :show-preview="true" :duplicate-words="duplicateWords">
                 <template #actions="{ isValid }">
                   <Button
                     :disabled="!isValid"
@@ -228,6 +230,7 @@ function handleGoHome() {
                 :board="board"
                 :clicked="clicked"
                 :bingo="bingo"
+                :free-space-text="freeSpaceText"
                 @cell-click="toggleCell"
               />
             </template>
@@ -235,7 +238,7 @@ function handleGoHome() {
 
           <!-- Right sidebar - Word Input (when board exists) -->
           <div v-if="board.length > 0" class="order-2 lg:order-3 space-y-4 md:space-y-6 w-full lg:max-w-none">
-            <WordInput v-model="wordsInput" :duplicate-words="duplicateWords" class="lg:sticky lg:top-4">
+            <WordInput v-model="wordsInput" v-model:free-space-text="freeSpaceText" :duplicate-words="duplicateWords" class="lg:sticky lg:top-4">
               <template #actions="{ isValid }">
                 <Button
                   :disabled="!isValid"

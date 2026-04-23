@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 export function useBingoBoard() {
   const words = ref<string[]>([])
   const wordsInput = ref('')
+  const freeSpaceText = ref('FREE')
   const board = ref<(string | null)[][]>([])
   const clicked = ref<boolean[][]>([])
   const bingo = ref(false)
@@ -192,7 +193,7 @@ export function useBingoBoard() {
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
 
-          const displayText = isFree ? 'FREE' : (word || '')
+          const displayText = isFree ? freeSpaceText.value : (word || '')
           const maxWidth = cellSize - 16
           const lines = wrapText(ctx, displayText, maxWidth)
           const lineHeight = 14
@@ -266,7 +267,7 @@ export function useBingoBoard() {
     // Limit to 4 lines max
     if (lines.length > 4) {
       lines.length = 4
-      lines[3] = lines[3].slice(0, -3) + '...'
+      lines[3] = (lines[3] ?? '').slice(0, -3) + '...'
     }
 
     return lines
@@ -275,6 +276,7 @@ export function useBingoBoard() {
   return {
     words,
     wordsInput,
+    freeSpaceText,
     board,
     clicked,
     bingo,

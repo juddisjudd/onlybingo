@@ -5,9 +5,12 @@ interface Props {
   board: (string | null)[][]
   clicked: boolean[][]
   bingo: boolean
+  freeSpaceText?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  freeSpaceText: 'FREE'
+})
 
 const emit = defineEmits<{
   cellClick: [row: number, col: number]
@@ -28,7 +31,7 @@ function getCellClass(row: number, col: number) {
 }
 
 function displayWord(word: string | null) {
-  if (!word) return 'FREE'
+  if (word === null) return props.freeSpaceText
   return word
 }
 </script>

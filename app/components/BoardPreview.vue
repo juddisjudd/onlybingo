@@ -4,9 +4,12 @@ import { cn } from '~/lib/utils'
 
 interface Props {
   words: string[]
+  freeSpaceText?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  freeSpaceText: 'FREE'
+})
 
 // Generate a stable preview board from the first 24 words (no shuffle for preview)
 const previewBoard = computed<(string | null)[][]>(() => {
@@ -29,7 +32,7 @@ const previewBoard = computed<(string | null)[][]>(() => {
 const hasEnoughWords = computed(() => props.words.length >= 24)
 
 function displayWord(word: string | null) {
-  if (word === null) return 'FREE'
+  if (word === null) return props.freeSpaceText
   if (!word) return ''
   return word
 }
@@ -67,7 +70,7 @@ function getCellClass(word: string | null) {
           v-for="(word, j) in row"
           :key="`cell-${i}-${j}`"
           :class="getCellClass(word)"
-          :title="word || (word === null ? 'FREE' : 'Empty')"
+          :title="word || (word === null ? props.freeSpaceText : 'Empty')"
         >
           <span class="line-clamp-4 text-center leading-[1.1] wrap-break-word hyphens-auto w-full">
             {{ displayWord(word) }}

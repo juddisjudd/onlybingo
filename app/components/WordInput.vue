@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const model = defineModel<string>({ required: true })
+const freeSpaceText = defineModel<string>('freeSpaceText', { default: 'FREE' })
 
 const hasDuplicates = computed(() => props.duplicateWords && props.duplicateWords.length > 0)
 
@@ -83,8 +84,20 @@ onMounted(() => {
       
       <!-- Board Preview -->
       <div v-if="showPreview">
-        <BoardPreview :words="words" />
+        <BoardPreview :words="words" :free-space-text="freeSpaceText" />
       </div>
+    </div>
+
+    <!-- Free space text -->
+    <div class="flex items-center gap-3">
+      <label class="text-xs text-zinc-400 whitespace-nowrap shrink-0">Free space text:</label>
+      <input
+        v-model="freeSpaceText"
+        type="text"
+        maxlength="30"
+        placeholder="FREE"
+        class="flex-1 max-w-[180px] px-3 py-1.5 text-xs bg-zinc-900/50 border border-zinc-700/50 rounded-lg text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all"
+      />
     </div>
 
     <!-- Word count and action buttons -->
