@@ -22,9 +22,9 @@ function getCellClass(row: number, col: number) {
   return cn(
     'relative aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg transition-all duration-200 border overflow-hidden',
     {
-      // Free space styling (always marked, non-interactive)
-      'bg-blue-600/30 border-blue-500/50 text-blue-300 cursor-default': isFree,
-      // Regular cells (interactive)
+      // Free space styling
+      'bg-blue-600/30 border-blue-500/50 text-blue-300 hover:bg-blue-600/40 hover:border-blue-500/70 cursor-pointer hover:scale-[1.02]': isFree,
+      // Regular cells
       'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 text-zinc-300 cursor-pointer hover:scale-[1.02]': !isFree,
     }
   )
@@ -44,14 +44,14 @@ function displayWord(word: string | null) {
         :key="`cell-${i}-${j}`"
         :class="getCellClass(i, j)"
         type="button"
-        @click="word !== null && emit('cellClick', i, j)"
+        @click="emit('cellClick', i, j)"
       >
         <span class="text-[8px] sm:text-[10px] md:text-xs text-center font-medium line-clamp-4 wrap-break-word hyphens-auto overflow-hidden w-full leading-[1.15]">
           {{ displayWord(word) }}
         </span>
-        <!-- X overlay for clicked cells (not FREE) -->
+        <!-- X overlay for clicked cells -->
         <svg
-          v-if="clicked[i][j] && word !== null"
+          v-if="clicked[i][j]"
           class="absolute inset-0 w-full h-full pointer-events-none"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"

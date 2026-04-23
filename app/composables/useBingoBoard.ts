@@ -51,10 +51,6 @@ export function useBingoBoard() {
 
     board.value = generateBingoBoard(words.value)
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
-    // Mark FREE space as clicked
-    if (clicked.value[2]) {
-      clicked.value[2][2] = true
-    }
     bingo.value = false
     isExploding.value = false
   }
