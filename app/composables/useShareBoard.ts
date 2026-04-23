@@ -3,14 +3,14 @@ export function useShareBoard() {
   const isGenerating = ref(false)
   const config = useRuntimeConfig()
 
-  async function generateShareLink(words: string[], board: (string | null)[][]) {
+  async function generateShareLink(words: string[], board: (string | null)[][], freeSpaceText: string) {
     isGenerating.value = true
     // Don't clear shareableLink to prevent layout shift during regeneration
 
     try {
       const { id } = await $fetch('/api/boards', {
         method: 'POST',
-        body: { words, board }
+        body: { words, board, freeSpaceText }
       })
 
       shareableLink.value = `${config.public.siteUrl}/?id=${id}`

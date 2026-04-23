@@ -77,22 +77,12 @@ export function useBingoBoard() {
     }
   }
 
-  function loadBoard(data: { words: string[], board: (string | null)[][] }) {
-    // Set words first
+  function loadBoard(data: { words: string[], board: (string | null)[][], freeSpaceText?: string }) {
     words.value = [...data.words]
     wordsInput.value = data.words.join('\n')
-
-    // Generate a random board from the words instead of using the saved board
-    board.value = generateBingoBoard(data.words)
-
-    // Initialize clicked state
+    board.value = data.board
+    freeSpaceText.value = data.freeSpaceText ?? 'FREE'
     clicked.value = Array(5).fill(null).map(() => Array(5).fill(false))
-    // Mark FREE space as clicked
-    if (clicked.value[2]) {
-      clicked.value[2][2] = true
-    }
-
-    // Reset bingo state
     bingo.value = false
     isExploding.value = false
   }

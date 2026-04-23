@@ -62,7 +62,7 @@ onMounted(async () => {
 async function handleCreateBoard() {
   try {
     createBoard()
-    await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value)
+    await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value, freeSpaceText.value)
     // Update URL to include the board ID (without full page navigation)
     if (shareableLink.value) {
       const id = shareableLink.value.split('?id=')[1]
@@ -87,7 +87,7 @@ async function handleRegenerate() {
   try {
     createBoard()
     // Update the share link with the new board
-    await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value)
+    await generateShareLink(wordsInput.value.split('\n').filter(w => w.trim().length > 0), board.value, freeSpaceText.value)
     // Regenerate QR code with the new share link
     if (shareableLink.value) {
       await generateQRCode(shareableLink.value)
@@ -206,8 +206,14 @@ function handleGoHome() {
             </div>
 
             <!-- Error State -->
-            <div v-else-if="loadError" class="p-8 bg-red-900/20 border border-red-800 rounded-lg">
-              <p class="text-red-400 text-center">{{ loadError }}</p>
+            <div v-else-if="loadError" class="p-8 bg-red-900/20 border border-red-800 rounded-lg text-center space-y-4">
+              <p class="text-red-400">{{ loadError }}</p>
+              <Button
+                class="font-medium px-6 py-2 text-sm rounded-md transition-all bg-zinc-800 hover:bg-blue-950/50 text-blue-400 hover:text-blue-300 border border-zinc-700 hover:border-blue-600"
+                @click="handleGoHome"
+              >
+                Create a new board
+              </Button>
             </div>
 
             <!-- Input or Board -->

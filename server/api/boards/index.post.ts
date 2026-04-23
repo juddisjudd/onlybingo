@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
       id,
       words: validated.words,
       board: validated.board,
+      freeSpaceText: validated.freeSpaceText,
     })
 
     return { id }

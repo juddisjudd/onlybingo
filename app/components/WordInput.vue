@@ -19,6 +19,7 @@ const freeSpaceText = defineModel<string>('freeSpaceText', { default: 'FREE' })
 const hasDuplicates = computed(() => props.duplicateWords && props.duplicateWords.length > 0)
 
 const STORAGE_KEY = 'onlybingo_word_list'
+const FREE_SPACE_KEY = 'onlybingo_free_space_text'
 
 const words = computed(() => {
   return model.value
@@ -42,7 +43,6 @@ function clearList() {
   }
 }
 
-// Save to localStorage whenever the word list changes
 watch(model, (newValue) => {
   if (typeof window !== 'undefined') {
     try {
@@ -53,16 +53,26 @@ watch(model, (newValue) => {
   }
 }, { immediate: false })
 
-// Load from localStorage on mount if model is empty
+watch(freeSpaceText, (newValue) => {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(FREE_SPACE_KEY, newValue)
+    } catch (error) {
+      console.error('Failed to save free space text to localStorage:', error)
+    }
+  }
+}, { immediate: false })
+
 onMounted(() => {
   if (typeof window !== 'undefined' && !model.value) {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        model.value = saved
-      }
+      const savedWords = localStorage.getItem(STORAGE_KEY)
+      if (savedWords) model.value = savedWords
+
+      const savedFreeSpace = localStorage.getItem(FREE_SPACE_KEY)
+      if (savedFreeSpace) freeSpaceText.value = savedFreeSpace
     } catch (error) {
-      console.error('Failed to load word list from localStorage:', error)
+      console.error('Failed to load from localStorage:', error)
     }
   }
 })

@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
       .select({
         words: boards.words,
         board: boards.board,
+        freeSpaceText: boards.freeSpaceText,
       })
       .from(boards)
       .where(eq(boards.id, validatedId))

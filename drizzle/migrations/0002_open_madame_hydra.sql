@@ -1,0 +1,1 @@
+ALTER TABLE "boards" ADD COLUMN "free_space_text" varchar(30) DEFAULT 'FREE' NOT NULL;
